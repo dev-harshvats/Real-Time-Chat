@@ -63,7 +63,7 @@ function App() {
   // ------------------- Chat Page -------------------
   return (
     <div className='h-screen bg-black'>
-      <div className='h-[82vh] overflow-y-auto space-y-3 p-4'>
+      <div className='h-[92vh] overflow-y-auto space-y-3 p-4'>
         {messages.map((message, idx) =>(
           <div key={idx} className='py-2'>
             <span className='bg-white text-black rounded p-3'>
