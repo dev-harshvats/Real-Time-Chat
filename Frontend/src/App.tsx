@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import './App.css';
 
 interface Message {
