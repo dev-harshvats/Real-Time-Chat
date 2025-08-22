@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import './App.css';
 
 interface Message {
   name: string;
@@ -14,6 +13,16 @@ function App() {
   const wsRef = useRef<WebSocket | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    // Prevent the entire page from scrolling, removes overflow
+    document.body.style.overflow = 'hidden';
+
+    // Cleanup function: Restore default scroll behavior when the component unmounts
+    return () => {
+      document.body.style.overflow = 'auto';
+    }
+  }, [joined]);
 
   useEffect(() => {
     if (!roomId || !joined || !name) return;
@@ -39,7 +48,10 @@ function App() {
     };
 
     return () => {
-      ws.close();
+      // Ensure the WebSocket is open before trying to close it
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
     };
   }, [roomId, joined, name]);
 
@@ -67,7 +79,7 @@ function App() {
   // ------------------ Landing Page ------------------
   if (!joined) {
     return (
-      <div className='h-screen bg-gray-900 text-white flex items-center justify-center p-4'>
+      <div className='h-screen overflow-hidden bg-gray-900 text-white flex items-center justify-center p-4'>
         <div className='bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md text-center border border-gray-700'>
           <h1 className='text-3xl font-bold mb-2'>Real-Time Chat</h1>
           <p className='text-gray-400 mb-6'>Join a room to start chatting</p>
