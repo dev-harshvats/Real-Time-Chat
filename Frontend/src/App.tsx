@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 
 function App() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<string[]>([]);
   const [roomId, setRoomId] = useState("");
   const [joined, setJoined] = useState(false);    // NEW: track if user joined
-  const wsRef = useRef();
-  const inputRef = useRef();
+  const wsRef = useRef<WebSocket | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if(!roomId || !joined) return;   // don't connect until roomId is set
@@ -51,7 +51,7 @@ function App() {
                 setJoined(true);
               }
             }}
-            className='bg-green-600 text-white p-2 rounded w-full'
+            className='bg-green-600 text-white p-2 rounded w-full cursor-pointer'
           >
             Join Room
           </button>
@@ -78,14 +78,16 @@ function App() {
         <button
           onClick={() => {
             const message = inputRef.current?.value;
-            if(message) {
+            if(message && wsRef.current) {
               wsRef.current.send(JSON.stringify({
                 type: "chat",
                 payload: {
                   message: message
                 }
               }))
-              inputRef.current.value = "";
+              if(inputRef.current){
+                inputRef.current.value = "";
+              }
             }
           }}
           className='bg-green-600 text-white cursor-pointer p-4'>
@@ -97,3 +99,4 @@ function App() {
 }
 
 export default App
+
