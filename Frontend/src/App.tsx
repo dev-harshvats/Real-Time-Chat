@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 interface Message {
   name: string;
   text: string;
+  type: 'chat' | 'join';
 }
 
 function App() {
@@ -113,6 +114,18 @@ function App() {
 
       <div className='flex-1 overflow-y-auto p-6 space-y-4'>
         {messages.map((message, idx) => {
+          // Render centered notification when new user joins.
+          if(message.type === 'join'){
+            return (
+              <div key={idx} className='text-center my-2'>
+                <span className='bg-gray-700 border border-gray-600 text-gray-300 text-xs px-4 py-2 rounded-lg inline-block shadow-md'>
+                  {message.text}
+                </span>
+              </div>
+            )
+          }
+
+          // Otherwise, render the standard chat message bubble.
           const isCurrentUser = message.name === name;
           return (
             <div key={idx} className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>

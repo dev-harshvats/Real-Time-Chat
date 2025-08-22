@@ -41,10 +41,24 @@ wss.on("connection", (socket) => {
         const parsedMessage = JSON.parse(message.toString()); // Use .toString() for Buffer
 
         if (parsedMessage.type === "join") {
-            allSockets.push({
+            const newUser = {
                 socket,
                 room: parsedMessage.payload.roomId,
                 name: parsedMessage.payload.name
+            };
+            allSockets.push(newUser);
+
+            // Create a join notification message
+            const joinNotification = {
+                type: 'join',
+                name: newUser.name,
+                text: `${newUser.name} joined the room.`
+            }
+
+            allSockets.forEach((user) => {
+                if (user.room === newUser.room && user.socket !== newUser.socket) {
+                    user.socket.send(JSON.stringify(joinNotification));
+                }
             });
         }
 
@@ -56,6 +70,7 @@ wss.on("connection", (socket) => {
             const senderName = currentUser.name;
 
             const messageToSend = {
+                type: 'chat',
                 name: senderName,
                 text: parsedMessage.payload.message
             };
@@ -71,6 +86,26 @@ wss.on("connection", (socket) => {
     socket.on("close", () => {
         // userCount = userCount - 1;
         console.log("Client disconnected");
+
+        const leavingUser = allSockets.find(user => user.socket === socket);
+
+        if (leavingUser) {
+            console.log(`${leavingUser.name} left the room.`);
+            allSockets = allSockets.filter(user => user.socket !== socket);
+
+            const leaveNotification = {
+                type: 'join',
+                name: leavingUser.name,
+                text: `${leavingUser.name} left the room.`
+            };
+
+            allSockets.forEach((user) => {
+                if (user.room === leavingUser.room) {
+                    user.socket.send(JSON.stringify(leaveNotification));
+                }
+            });
+        }
+
         // Correctly filter out the disconnected socket
         allSockets = allSockets.filter(user => user.socket !== socket);
     });
