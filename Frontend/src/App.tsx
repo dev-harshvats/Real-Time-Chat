@@ -8,10 +8,46 @@ function App() {
   const wsRef = useRef<WebSocket | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    if(!roomId || !joined) return;   // don't connect until roomId is set
+  {/* The below commented useEffect hook is hardcoded to run on the local machine */}
+  // useEffect(() => {
+  //   if(!roomId || !joined) return;   // don't connect until roomId is set
 
-    const ws = new WebSocket("http://localhost:8080");
+  //   const ws = new WebSocket("http://localhost:8080");
+  //   wsRef.current = ws;
+
+  //   ws.onmessage = (event) => {
+  //     setMessages(m => [...m, event.data])
+  //   }
+
+  //   ws.onopen = () => {
+  //     ws.send(JSON.stringify({
+  //       type: "join",
+  //       payload: {
+  //         roomId: roomId
+  //       }
+  //     }))
+  //   }
+
+  //   return () => {
+  //     ws.close();
+  //   }
+  // }, [roomId, joined]);   // reconnect when roomId changes
+
+  {/* Now comes the useEffect hook for web application */}
+  useEffect(() => {
+    if(!roomId || !joined) return;
+
+    // 1. Get the backend hostname from environment variables
+    //    For Vite, it must start with VITE_
+    const backendHost = import.meta.env.VITE_API_URL;
+
+    // 2. Create the correct WebSocket URL for production
+    //    - Use secure protocol 'wss://'
+    //    - Fallback to localhost for local development
+    const wsUrl = backendHost ? `wss://${backendHost}` : "ws://localhost:8080";
+
+    // 3. Connect to the correct server
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onmessage = (event) => {
@@ -30,7 +66,7 @@ function App() {
     return () => {
       ws.close();
     }
-  }, [roomId, joined]);   // reconnect when roomId changes
+  }, [roomId, joined]);
 
   // ------------------ Landing Page ------------------
   if(!joined) {
