@@ -15,16 +15,6 @@ function App() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Prevent the entire page from scrolling, removes overflow
-    document.body.style.overflow = 'hidden';
-
-    // Cleanup function: Restore default scroll behavior when the component unmounts
-    return () => {
-      document.body.style.overflow = 'auto';
-    }
-  }, [joined]);
-
-  useEffect(() => {
     if (!roomId || !joined || !name) return;
 
     const backendHost = import.meta.env.VITE_API_URL;
@@ -79,7 +69,7 @@ function App() {
   // ------------------ Landing Page ------------------
   if (!joined) {
     return (
-      <div className='h-screen overflow-hidden bg-gray-900 text-white flex items-center justify-center p-4'>
+      <div className='fixed inset-0 bg-gray-900 text-white flex items-center justify-center p-4'>
         <div className='bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md text-center border border-gray-700'>
           <h1 className='text-3xl font-bold mb-2'>Real-Time Chat</h1>
           <p className='text-gray-400 mb-6'>Join a room to start chatting</p>
@@ -116,7 +106,7 @@ function App() {
 
   // ------------------- Chat Page -------------------
   return (
-    <div className='h-screen bg-gray-900 text-white flex flex-col'>
+    <div className='fixed inset-0 bg-gray-900 text-white flex flex-col'>
       <header className='bg-gray-800 p-4 shadow-md border-b border-gray-700'>
         <h1 className='text-xl font-bold text-center'>Room: <span className='text-indigo-400'>{roomId}</span></h1>
       </header>
