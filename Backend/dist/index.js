@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from "ws";
 import express from 'express';
-import http from 'http'; // Import the 'http' module
+import http from 'http';
 import cors from 'cors';
 const app = express();
 // This port will be managed by Render, or be 8080 locally
@@ -16,17 +16,18 @@ app.use(cors(corsOptions));
 const server = http.createServer(app);
 // Attach the WebSocket server to the HTTP server
 const wss = new WebSocketServer({ server });
-let userCount = 0;
+// let userCount = 0;
 let allSockets = [];
 wss.on("connection", (socket) => {
-    userCount = userCount + 1;
-    console.log(`Client connected #${userCount}`);
+    // userCount = userCount + 1;
+    console.log(`Client connection established!`);
     socket.on("message", (message) => {
         const parsedMessage = JSON.parse(message.toString()); // Use .toString() for Buffer
         if (parsedMessage.type === "join") {
             allSockets.push({
                 socket,
-                room: parsedMessage.payload.roomId
+                room: parsedMessage.payload.roomId,
+                name: parsedMessage.payload.name
             });
         }
         if (parsedMessage.type === "chat") {
@@ -34,16 +35,20 @@ wss.on("connection", (socket) => {
             if (!currentUser)
                 return;
             const currentUserRoom = currentUser.room;
+            const senderName = currentUser.name;
+            const messageToSend = {
+                name: senderName,
+                text: parsedMessage.payload.message
+            };
             allSockets.forEach((user) => {
                 if (user.room === currentUserRoom) {
-                    user.socket.send(parsedMessage.payload.message);
+                    user.socket.send(JSON.stringify(messageToSend));
                 }
             });
         }
     });
-    // The event is 'close', not 'disconnect'
     socket.on("close", () => {
-        userCount = userCount - 1;
+        // userCount = userCount - 1;
         console.log("Client disconnected");
         // Correctly filter out the disconnected socket
         allSockets = allSockets.filter(user => user.socket !== socket);
