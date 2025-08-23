@@ -18,6 +18,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Added health check endpoint to ping to this every few minutes
+app.get("/health", (req, res) => {
+    res.status(200).send("OK");
+})
+
 // Create a standard HTTP server from your Express app
 const server = http.createServer(app);
 
